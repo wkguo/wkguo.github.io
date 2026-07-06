@@ -8,14 +8,16 @@
   <meta property="og:title" content="REMA: Efficient Online Robotic Reinforcement Learning with Explicit Manifold Alignment">
   <meta property="og:description" content="Explicit manifold alignment for sample-efficient online robotic reinforcement learning.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="assets/images/teaser.png">
+  <meta property="og:image" content="assets/images/rema_icon_480.png">
+  <link rel="icon" type="image/png" href="assets/images/rema_icon_128.png">
+  <link rel="apple-touch-icon" href="assets/images/rema_icon_128.png">
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
 
 <header class="nav-wrap">
   <nav class="nav" aria-label="Main navigation">
-    <a class="nav-brand" href="#top">REMA</a>
+    <a class="nav-brand" href="#top"><img src="assets/images/rema_icon_128.png" alt="" aria-hidden="true">REMA</a>
     <div class="nav-links">
       <a href="#abstract">Abstract</a>
       <a href="#method">Method</a>
@@ -33,6 +35,9 @@
   <section class="hero">
     <div class="container hero-grid">
       <div class="hero-text reveal">
+        <div class="project-icon-wrap">
+          <img class="project-icon" src="assets/images/rema_icon_480.png" alt="REMA project icon: a luminous lavender jellyfish, evoking trajectories drifting around a manifold.">
+        </div>
         <span class="venue-badge">IEEE Robotics and Automation Letters (RA-L), 2026</span>
         <h1 class="hero-title"><em>REMA</em>: Efficient Online Robotic Reinforcement Learning<br class="wide-only"> with Explicit Manifold Alignment</h1>
         <p class="hero-subtitle">A plug-in manifold-based credit assignment framework that improves sparse-reward robotic RL by preserving informative failures and suppressing uninformative divergent rollouts.</p>
@@ -131,11 +136,6 @@
           <p>Leaves the successful-behavior manifold; should be suppressed.</p>
         </div>
       </div>
-
-      <figure class="figure-card reveal">
-        <img src="assets/images/empirical_dataset.png" alt="Spatial and spectral characteristics of trajectory types: on-manifold failures share low-frequency DCT profiles with expert data, off-manifold failures show high-frequency irregularities.">
-        <figcaption>Spatial and spectral characteristics of trajectory types. On-manifold failures preserve spectral structure similar to expert demonstrations; off-manifold failures exhibit high-frequency irregularities.</figcaption>
-      </figure>
     </div>
   </section>
 
@@ -232,11 +232,6 @@
         <div class="task-card"><h4>Insert Pipe</h4><p>Perform tight-tolerance contact insertion. <span class="task-platform">Franka Research 3</span></p></div>
         <div class="task-card"><h4>Fold Towel</h4><p>Manipulate a deformable towel. <span class="task-platform">Franka Research 3</span></p></div>
       </div>
-
-      <figure class="figure-card reveal">
-        <img src="assets/images/experiment_setup.png" alt="Real-world task illustrations showing initial setups, position variation regions, and successful end states.">
-        <figcaption>Task illustrations. The top row shows the initial setup and position variation; the bottom row shows successful end states. All tasks use a sparse reward of 1 for success and 0 otherwise.</figcaption>
-      </figure>
 
       <figure class="figure-card reveal">
         <img src="assets/images/realworld_result.png" alt="Real-world human-in-the-loop training results on Galaxea-A1 and Franka Research 3.">

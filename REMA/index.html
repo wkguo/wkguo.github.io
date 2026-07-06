@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REMA: Efficient Online Robotic Reinforcement Learning with Explicit Manifold Alignment</title>
+  <meta name="description" content="REMA is a demonstration-aided online RL framework that improves sparse-reward robotic manipulation through explicit manifold alignment.">
+  <meta property="og:title" content="REMA: Efficient Online Robotic Reinforcement Learning with Explicit Manifold Alignment">
+  <meta property="og:description" content="Explicit manifold alignment for sample-efficient online robotic reinforcement learning.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/images/teaser.png">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<header class="nav-wrap">
+  <nav class="nav" aria-label="Main navigation">
+    <a class="nav-brand" href="#top">REMA</a>
+    <div class="nav-links">
+      <a href="#abstract">Abstract</a>
+      <a href="#method">Method</a>
+      <a href="#results">Results</a>
+      <a href="#videos">Videos</a>
+      <a href="#analysis">Analysis</a>
+      <a href="#citation">Citation</a>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-text reveal">
+        <span class="venue-badge">IEEE Robotics and Automation Letters (RA-L), 2026</span>
+        <h1 class="hero-title"><em>REMA</em>: Efficient Online Robotic Reinforcement Learning<br class="wide-only"> with Explicit Manifold Alignment</h1>
+        <p class="hero-subtitle">A plug-in manifold-based credit assignment framework that improves sparse-reward robotic RL by preserving informative failures and suppressing uninformative divergent rollouts.</p>
+
+        <p class="authors">
+          <a href="https://wkguo.github.io">Wenkai Guo</a><sup>1</sup>,
+          <span>Peizhi Tang</span><sup>1</sup>,
+          <span>Yukun Bai</span><sup>1</sup>,
+          <span>Ziming Yan</span><sup>1</sup>,
+          <span>Haoyuan Deng</span><sup>1</sup>,
+          <span>Guanxing Lu</span><sup>2</sup>,
+          <span>Shijie Li</span><sup>3</sup>,
+          <a href="https://ziweiwangthu.github.io">Ziwei Wang</a><sup>1&dagger;</sup>
+        </p>
+        <p class="affiliations">
+          <sup>1</sup> School of Electrical and Electronic Engineering, Nanyang Technological University, Singapore<br>
+          <sup>2</sup> Shenzhen International Graduate School, Tsinghua University, China<br>
+          <sup>3</sup> Institute for Infocomm Research, A*STAR, Singapore<br>
+          <sup>&dagger;</sup> Corresponding author
+        </p>
+
+        <div class="btn-row">
+          <a class="btn btn-outline disabled" href="#" aria-disabled="true">Paper coming soon</a>
+          <a class="btn btn-outline disabled" href="#" aria-disabled="true">Code coming soon</a>
+          <a class="btn btn-primary" href="#videos">Video</a>
+          <a class="btn btn-outline" href="#citation">BibTeX</a>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal">
+        <figure class="figure-card hero-figure">
+          <img src="assets/images/teaser.png" alt="REMA teaser: failed trajectories are evaluated by their distance to a reference manifold built from successful trajectories.">
+          <figcaption>REMA penalizes failures distant from the reference manifold derived from successful trajectories, refining credit assignment for value learning.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="container metric-strip reveal">
+      <div class="metric-card">
+        <span class="metric-value">1.2&times;</span>
+        <span class="metric-label">Faster convergence in simulation</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-value">+7.4%</span>
+        <span class="metric-label">Higher success rate in simulation</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-value">60.8% &rarr; 29.9%</span>
+        <span class="metric-label">Human intervention reduced in real-world HIL RL</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-value">62.5% &rarr; 80.6%</span>
+        <span class="metric-label">Autonomous success improved in real-world HIL RL</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABSTRACT ============ -->
+  <section id="abstract" class="section">
+    <div class="container narrow reveal">
+      <h2>Abstract</h2>
+      <p class="lede">
+        Online reinforcement learning enables robots to improve through real-world interaction, but contact-rich
+        manipulation remains difficult under sparse binary rewards. Conventional reward shaping often depends on
+        goal-proximity heuristics and does not explicitly distinguish informative near-success failures from
+        uninformative divergent trials. REMA addresses this credit assignment problem by aligning online trajectories
+        with a spectral reference manifold constructed from successful demonstrations. Low-frequency DCT components
+        capture task-relevant motion structure, allowing REMA to identify whether a failed trajectory is informative
+        or off-manifold. Distant failures receive calibrated penalties that suppress noisy value-learning signals,
+        while aligned near-misses remain useful for policy improvement. Across RoboMimic simulation tasks and
+        real-world human-in-the-loop manipulation on Galaxea-A1 and Franka Research 3, REMA improves sample
+        efficiency, reduces human intervention, and increases autonomous success.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ PROBLEM ============ -->
+  <section id="problem" class="section section-alt">
+    <div class="container reveal">
+      <h2>Sparse rewards make all failures look equally bad</h2>
+      <p class="narrow-text">
+        In contact-rich manipulation, binary rewards are easy to define but poor at assigning credit. A robot that
+        almost grasps the target object and a robot that wanders in free space both receive zero reward. The first
+        trajectory contains useful geometric information about the task, while the second mainly injects noise into
+        value learning. REMA starts from this distinction: the quality of a failed trajectory should be judged
+        relative to successful behavior, not only by its final reward.
+      </p>
+
+      <div class="card-duo">
+        <div class="info-card good">
+          <span class="card-tag tag-good">Informative near-miss</span>
+          <p>Follows task-relevant geometry; useful for value learning.</p>
+        </div>
+        <div class="info-card bad">
+          <span class="card-tag tag-bad">Divergent failure</span>
+          <p>Leaves the successful-behavior manifold; should be suppressed.</p>
+        </div>
+      </div>
+
+      <figure class="figure-card reveal">
+        <img src="assets/images/empirical_dataset.png" alt="Spatial and spectral characteristics of trajectory types: on-manifold failures share low-frequency DCT profiles with expert data, off-manifold failures show high-frequency irregularities.">
+        <figcaption>Spatial and spectral characteristics of trajectory types. On-manifold failures preserve spectral structure similar to expert demonstrations; off-manifold failures exhibit high-frequency irregularities.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section id="method" class="section">
+    <div class="container reveal">
+      <h2>Explicit manifold alignment for discriminative credit assignment</h2>
+      <p class="narrow-text">
+        The core mechanism is deliberately simple. Successful trajectories define a reference manifold in end-effector
+        task space. Each online trajectory is aligned and compressed into a spectral representation. Its normalized
+        distance to the reference manifold determines whether the trajectory should be preserved as informative
+        experience or penalized as an off-manifold deviation.
+      </p>
+
+      <div class="stage-grid">
+        <div class="stage-card reveal">
+          <span class="stage-num">01</span>
+          <h3>Build a reference manifold</h3>
+          <p>REMA starts from a small set of successful demonstrations. Each trajectory is represented in end-effector
+          task space, including position, rotation, and gripper state. The successful trajectories define the
+          reference behavior structure for the task.</p>
+        </div>
+        <div class="stage-card reveal">
+          <span class="stage-num">02</span>
+          <h3>Compress motion structure spectrally</h3>
+          <p>After geometric alignment, REMA applies the Discrete Cosine Transform to extract low-frequency motion
+          components. These components summarize global task-relevant motion while filtering high-frequency execution
+          noise.</p>
+        </div>
+        <div class="stage-card reveal">
+          <span class="stage-num">03</span>
+          <h3>Calibrate online trajectories</h3>
+          <p>During online learning, each failed trajectory is compared with the reference manifold using normalized
+          spectral distance. Off-manifold failures are penalized to reduce their impact on value estimation, while
+          aligned failures are preserved as informative experience.</p>
+        </div>
+      </div>
+
+      <figure class="figure-card reveal">
+        <img src="assets/images/pipeline.png" alt="REMA pipeline: spectral manifold construction from successful trajectories, distance evaluation of online failures, and reward calibration based on alignment.">
+        <figcaption>REMA constructs a spectral reference manifold from successful trajectories, evaluates online rollouts against it, and calibrates rewards based on manifold alignment.</figcaption>
+      </figure>
+
+      <div class="plugin-panel reveal">
+        <h3>Why REMA is plug-in</h3>
+        <p class="plugin-headline">No auxiliary networks. No new policy architecture. No change to the underlying RL algorithm.</p>
+        <p>REMA acts after rollouts are collected. It calibrates the reward signal used for value learning, making it
+        compatible with standard value-based online RL and human-in-the-loop RL pipelines.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="results" class="section section-alt">
+    <div class="container reveal">
+      <h2>More stable online learning with less human effort</h2>
+      <p class="narrow-text">
+        Across RoboMimic Can and Square, REMA improves learning speed and final success compared with standard
+        imitation and value-based RL baselines. On real robots, REMA reduces human intervention from 60.8% to 29.9%
+        and improves autonomous success from 62.5% to 80.6% in human-in-the-loop RL, while using the same intervention
+        equipment and offline data as the compared setup.
+      </p>
+
+      <div class="metric-strip compact">
+        <div class="metric-card"><span class="metric-value">1.2&times;</span><span class="metric-label">Simulation convergence</span></div>
+        <div class="metric-card"><span class="metric-value">+7.4%</span><span class="metric-label">Simulation success</span></div>
+        <div class="metric-card"><span class="metric-value">60.8% &rarr; 29.9%</span><span class="metric-label">Human effort</span></div>
+        <div class="metric-card"><span class="metric-value">62.5% &rarr; 80.6%</span><span class="metric-label">Real-world success</span></div>
+      </div>
+
+      <h3 class="sub-heading">Simulation results</h3>
+      <p class="narrow-text">
+        In simulation, REMA is evaluated on RoboMimic Can and Square. The experiments compare against behavior
+        cloning, IBRL, RLPD, and SASR under matched seeds and hyperparameters. REMA improves early-stage learning and
+        final convergence, showing stronger sample efficiency and lower variance across runs.
+      </p>
+      <figure class="figure-card reveal">
+        <img src="assets/images/combined_comparison.png" alt="Learning curves on RoboMimic Can and Square: REMA outperforms BC, IBRL, RLPD, and SASR.">
+        <figcaption>On RoboMimic Can and Square, REMA improves sample efficiency and achieves stronger final convergence compared with BC, IBRL, RLPD, and SASR.</figcaption>
+      </figure>
+
+      <h3 class="sub-heading">Real-world human-in-the-loop training</h3>
+      <p class="narrow-text">
+        In real-world human-in-the-loop RL, REMA is evaluated on Galaxea-A1 and Franka Research 3 across four tasks
+        covering precision, contact sensitivity, distractors, and deformable-object manipulation. Both platforms use
+        side-fixed and wrist-mounted cameras, and human interventions are provided using a 6D SpaceMouse. REMA uses
+        the same offline data and intervention equipment as the compared HIL-SERL setup, differing only by applying
+        manifold-based reward calibration to collected trajectories.
+      </p>
+
+      <div class="task-grid">
+        <div class="task-card"><h4>Place Toast</h4><p>Pick toast from the toaster and place it on a plate. <span class="task-platform">Galaxea-A1</span></p></div>
+        <div class="task-card"><h4>Place Teacup</h4><p>Grasp a target teacup among distractors and place it on a plate. <span class="task-platform">Galaxea-A1</span></p></div>
+        <div class="task-card"><h4>Insert Pipe</h4><p>Perform tight-tolerance contact insertion. <span class="task-platform">Franka Research 3</span></p></div>
+        <div class="task-card"><h4>Fold Towel</h4><p>Manipulate a deformable towel. <span class="task-platform">Franka Research 3</span></p></div>
+      </div>
+
+      <figure class="figure-card reveal">
+        <img src="assets/images/experiment_setup.png" alt="Real-world task illustrations showing initial setups, position variation regions, and successful end states.">
+        <figcaption>Task illustrations. The top row shows the initial setup and position variation; the bottom row shows successful end states. All tasks use a sparse reward of 1 for success and 0 otherwise.</figcaption>
+      </figure>
+
+      <figure class="figure-card reveal">
+        <img src="assets/images/realworld_result.png" alt="Real-world human-in-the-loop training results on Galaxea-A1 and Franka Research 3.">
+        <figcaption>Real-world human-in-the-loop training on Galaxea-A1 and Franka Research 3. REMA improves autonomous success while reducing human intervention under the same wall-clock budget.</figcaption>
+      </figure>
+
+      <h3 class="sub-heading">Offline-to-online fine-tuning</h3>
+      <p class="narrow-text">
+        Beyond learning from scratch, REMA also calibrates offline-to-online fine-tuning. Under a matched 30-minute
+        online budget, REMA consistently improves over WSRL across the evaluated real-world tasks, with especially
+        clear gains on the deformable Fold Towel task.
+      </p>
+      <div class="table-card reveal">
+        <div class="table-scroll">
+          <table>
+            <caption class="sr-only">Real-world policy fine-tuning results (successes out of 20 trials)</caption>
+            <thead>
+              <tr><th>Task</th><th>Pretrained (Cal-QL)</th><th>WSRL @ 30 min</th><th>REMA @ 30 min</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Place Teacup</td><td>9/20</td><td>13/20</td><td class="best">16/20</td></tr>
+              <tr><td>Insert Pipe</td><td>11/20</td><td>17(&plusmn;2)/20</td><td class="best">19(&plusmn;1)/20</td></tr>
+              <tr><td>Fold Towel</td><td>6/20</td><td>11(&plusmn;3)/20</td><td class="best">14(&plusmn;2)/20</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-note">Place Teacup on Galaxea-A1 is a single online fine-tuning run; Insert Pipe and Fold Towel on Franka Research 3 report mean &plusmn; std over three independent runs, each evaluated with 20 autonomous trials.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VIDEOS ============ -->
+  <section id="videos" class="section">
+    <div class="container reveal">
+      <h2>Videos</h2>
+
+      <figure class="video-card main-video reveal">
+        <video controls preload="metadata" playsinline>
+          <source src="assets/videos/rema_overview.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <figcaption>REMA overview video: method summary and real-world human-in-the-loop training results.</figcaption>
+      </figure>
+
+      <div class="video-grid">
+        <!-- Per-task videos not yet available; placeholder cards keep expected asset paths visible.
+             Expected: assets/videos/place_toast.mp4 / place_teacup.mp4 / insert_pipe.mp4 / fold_towel.mp4 -->
+        <div class="video-placeholder"><span class="ph-icon">&#9658;</span><h4>Place Toast on Galaxea-A1</h4><p>Task video coming soon</p></div>
+        <div class="video-placeholder"><span class="ph-icon">&#9658;</span><h4>Place Teacup with distractors on Galaxea-A1</h4><p>Task video coming soon</p></div>
+        <div class="video-placeholder"><span class="ph-icon">&#9658;</span><h4>Insert Pipe on Franka Research 3</h4><p>Task video coming soon</p></div>
+        <div class="video-placeholder"><span class="ph-icon">&#9658;</span><h4>Fold Towel on Franka Research 3</h4><p>Task video coming soon</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ANALYSIS ============ -->
+  <section id="analysis" class="section section-alt">
+    <div class="container reveal">
+      <h2>Understanding the calibration behavior</h2>
+
+      <div class="analysis-grid">
+        <div class="analysis-block reveal">
+          <h3>Calibration dynamics</h3>
+          <p>As online training progresses, the manifold threshold adapts with successful experience and the
+          calibration rate declines. This shows that REMA is self-regulating: it strongly suppresses random early
+          exploration, then relaxes as the policy becomes aligned with the successful-behavior manifold.</p>
+          <figure class="figure-card">
+            <img src="assets/images/dct_distance_can_square.png" alt="Manifold threshold and calibration rate during training on Can and Square; the calibration rate declines as learning progresses.">
+            <figcaption>Learning dynamics on RoboMimic: the threshold adapts with online successes and the declining calibration rate shows the penalty is self-regulating.</figcaption>
+          </figure>
+        </div>
+
+        <div class="analysis-block reveal">
+          <h3>Value landscape</h3>
+          <p>REMA produces sharper value boundaries over task-relevant regions, whereas the baseline value landscape
+          is more diffuse. This suggests that manifold-calibrated penalties help value learning become more sensitive
+          to geometric task structure.</p>
+          <figure class="figure-card">
+            <img src="assets/images/q_analysis.png" alt="Normalized Q-value landscape over end-effector positions: REMA shows sharp value boundaries, IBRL lacks spatial differentiation.">
+            <figcaption>Normalized Q-value landscape over end-effector positions at 20k steps on Can: REMA exhibits sharp value boundaries while the baseline lacks spatial differentiation.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ROBUSTNESS ============ -->
+  <section id="robustness" class="section">
+    <div class="container reveal">
+      <h2>Robustness and boundary cases</h2>
+
+      <div class="analysis-grid">
+        <div class="analysis-block reveal">
+          <h3>Ablation</h3>
+          <p>Ablations show that a small penalty magnitude is important for preserving the optimal policy while
+          suppressing uninformative failures. DCT-based spectral distance performs better than temporal alignment
+          with DTW in the evaluated setting.</p>
+          <figure class="figure-card">
+            <img src="assets/images/combined_ablation_new.png" alt="Ablation studies: penalty magnitude and distance metric comparison on RoboMimic.">
+            <figcaption>Ablation studies on RoboMimic. Left: effect of penalty magnitude. Right: DCT spectral distance outperforms temporal alignment with DTW.</figcaption>
+          </figure>
+        </div>
+
+        <div class="analysis-block reveal">
+          <h3>Failure mode</h3>
+          <p>The spectral distance captures global motion shape, which makes it robust to execution-speed variability.
+          However, it can underweight spatial outcome differences or localized contact irregularities. This motivates
+          future extensions with multi-resolution or learned manifolds.</p>
+          <figure class="figure-card">
+            <img src="assets/images/failure_study.png" alt="Illustrative misclassifications of the spectral distance on the Fold Towel task.">
+            <figcaption>Illustrative boundary cases on Fold Towel: a spatially distant rollout judged on-manifold, and a near-success rollout judged off-manifold due to local hesitation.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="plugin-panel limitation reveal">
+        <h3>Limitations</h3>
+        <p>REMA captures global motion structure through low-frequency spectral features. This makes it robust to
+        execution-speed variation but less sensitive to localized contact irregularities or qualitatively different
+        success modes. Future extensions may use multi-resolution features, clustered manifolds, or learned trajectory
+        representations when longer online-adaptation budgets justify additional representation learning.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CITATION ============ -->
+  <section id="citation" class="section section-alt">
+    <div class="container narrow reveal">
+      <h2>Citation</h2>
+      <div class="bibtex-card">
+        <button class="copy-btn" id="copy-bibtex" type="button" aria-label="Copy BibTeX to clipboard">Copy</button>
+<pre id="bibtex-text"><code>@article{guo2026rema,
+  title={Efficient Online Robotic Reinforcement Learning with Explicit Manifold Alignment},
+  author={Guo, Wenkai and Tang, Peizhi and Bai, Yukun and Yan, Ziming and Deng, Haoyuan and Lu, Guanxing and Li, Shijie and Wang, Ziwei},
+  journal={IEEE Robotics and Automation Letters},
+  year={2026}
+}</code></pre>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p>REMA &mdash; Efficient Online Robotic Reinforcement Learning with Explicit Manifold Alignment. IEEE Robotics and Automation Letters, 2026.</p>
+  </div>
+</footer>
+
+<script src="assets/script.js"></script>
+</body>
+</html>

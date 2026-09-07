@@ -261,21 +261,13 @@
             <tr>
               <td style="padding:16px;width:100%;text-align:center">
                 <br>
-                <!-- Visitor map.
-                     ClustrMaps was removed on 2026-09-07: clustrmaps.com refuses TCP 443
-                     (service shut down), and the old synchronous <script> tag blocked HTML
-                     parsing until that connection failed on every page load.
-
-                     Replacement is MapMyVisitors, same widget shape as the old snippet.
-                     TODO: register wkguo.github.io at https://mapmyvisitors.com, paste the
-                     d= token below, then delete these comment markers. Note the count
-                     restarts from zero, so update the caption date at the same time.
-
-                <script type="text/javascript" id="mapmyvisitors" src="//mapmyvisitors.com/map.js?d=PASTE_TOKEN_HERE&cl=ffffff&w=300"></script>
+                <!-- Visitor map: MapMyVisitors (replaced ClustrMaps, whose service shut
+                     down in 2026 — clustrmaps.com refuses TCP 443). Counting restarts from
+                     zero with this provider, hence the new caption date. -->
+                <script type="text/javascript" id="mapmyvisitors" src="//mapmyvisitors.com/map.js?d=Q2TmuNhGDGcYOzhOZ5_i16RCtTRhcOns3R9MzCkdYdE&cl=ffffff&w=a"></script>
                 <p style="text-align:center;font-size:small;color:#999;margin-top:10px;">
                   Page views since September 2026
                 </p>
-                -->
               </td>
             </tr>
           </tbody></table>

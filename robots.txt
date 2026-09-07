@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wkguo.github.io/sitemap.xml

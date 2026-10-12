@@ -17,7 +17,12 @@
   </url>
   <url>
     <loc>https://wkguo.github.io/REMA/</loc>
-    <lastmod>2026-09-07</lastmod>
+    <lastmod>2026-10-12</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://wkguo.github.io/VLA-Reasoner/</loc>
+    <lastmod>2026-10-12</lastmod>
     <priority>0.8</priority>
   </url>
 </urlset>

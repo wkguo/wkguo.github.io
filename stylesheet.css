@@ -93,7 +93,42 @@ h2 {
   margin: 0;
   font-weight: normal;
   font-family: 'Lato', Verdana, Helvetica, sans-serif;
-  font-size: 22px;
+  font-size: 30px;
+}
+
+/* purple bold italic emphasis in the bio */
+.accent {
+  color: #6a58c9;
+  font-weight: 700;
+  font-style: italic;
+}
+
+/* one-line purple italic subtitle under a section heading */
+.section-tagline {
+  margin: 6px 0 0;
+  color: #6a58c9;
+  font-style: italic;
+}
+
+/* blog list, after seohong.me: one post per row, large title + small date */
+.blog-table {
+  margin-top: 12px;
+  border-spacing: 0;
+}
+
+.blog-contents {
+  padding: 0 40px 6px 20px;
+  vertical-align: middle;
+}
+
+.blog-title,
+.blog-title a {
+  font-size: 20px;
+}
+
+.blog-title small {
+  font-size: 14px;
+  color: #666;
 }
 
 .papertitle {
